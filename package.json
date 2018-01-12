@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
+    "query-string": "^5.0.1",
     "sinon": "^4.1.4"
   },
   "devDependencies": {
@@ -12,8 +13,10 @@
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.1",
+    "karma-sinon": "^1.0.5",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.9",
+    "sinon-stub-promise": "^4.0.0",
     "webpack": "^3.10.0"
   }
 }
