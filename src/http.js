@@ -27,3 +27,8 @@ export const get = (url, params) => {
     .catch(error => Promise.reject(new Error(error)));
 };
 
+export const post = (url, params) => {
+  return fetch(url, Object.assign({}, params, {
+    method: "POST"
+  }));
+};
