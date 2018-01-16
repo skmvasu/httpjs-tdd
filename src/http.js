@@ -28,7 +28,18 @@ export const get = (url, params) => {
 };
 
 export const post = (url, params) => {
-  return fetch(url, Object.assign({}, params, {
+  const {includeCsrf, ...rest} = params;
+  if (includeCsrf) {
+    Object.assign(rest, {
+      "X-CSRF-Token": getCSRFToken()
+    })
+  }
+
+  return fetch(url, {...rest,
     method: "POST"
-  }));
+  });
+};
+
+export const getCSRFToken = () => {
+  return "CSRF";
 };
