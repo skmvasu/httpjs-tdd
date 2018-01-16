@@ -1,34 +1,38 @@
 import * as http from "../http.js";
-import {stub, assert} from "sinon";
+import {stub, assert, mock} from "sinon";
 import * as fetch from "isomorphic-fetch";
 
-let stubedFetch; 
+const ContentTypes = {
+  json: "application/json",
+  text: "application/text"
+};
 
 const url = "/api/v1/users/";
 
 describe("TestHttpService", () => {
   describe("Test success scenarios", () => {
+    let stubedFetch;
+    
     beforeEach(() => {
       stubedFetch = stub(window, "fetch");
-
+  
       window.fetch.returns(Promise.resolve(mockApiResponse()));
-
+  
       function mockApiResponse(body = {}) {
         return new window.Response(JSON.stringify(body), {
           status: 200,
-          headers: { "Content-type": "application/json" }
+          headers: { "Content-type": ContentTypes.json }
         });
       }
     });
-
+  
     afterEach(() => {
       window.fetch.restore();
     }); 
-
+    
     describe("Test get requests", () => {
       it("should make a GET request", done => {
         http.get(url).then(response => {
-          console.log(stubedFetch.getCall(0).args[0]);
           expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
           expect(response).toEqual({});
           done();
@@ -48,4 +52,51 @@ describe("TestHttpService", () => {
           })
       });
     });
+
+    describe("Test POST requests", () => {
+      let stubCSRF, csrf;
+
+      beforeEach(() => {
+        csrf = "CSRF";
+        stub(http, "getCSRFToken").returns(csrf);
+      });
+
+      afterEach(() => {
+        http.getCSRFToken.restore();
+      });
+
+      it("should send a POST request with custom headers", done => {
+        const postParams = { 
+          "Content-type": ContentTypes.text,
+          users: [1, 2 ] 
+        };
+        http
+          .post(url, postParams)
+          .then(response => {
+            const [uri, params] = [...stubedFetch.getCall(0).args];
+
+            expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
+            expect(params).toEqual(jasmine.objectContaining(postParams));
+            done();
+          });
+      });
+      it("should send a POST request with CSRF", done => {
+        const postParams = { 
+          "Content-type": ContentTypes.text,
+          users: [1, 2 ] 
+        };
+        http
+          .post(url, { ...postParams, includeCsrf: true })
+          .then(response => {
+            const [uri, params] = [...stubedFetch.getCall(0).args];
+
+            expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
+            expect(params).toEqual(
+              jasmine.objectContaining({...postParams,"X-CSRF-Token": csrf })
+            );
+            done();
+          });
+      });
+    });
+  });
 });

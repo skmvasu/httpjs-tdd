@@ -27,3 +27,19 @@ export const get = (url, params) => {
     .catch(error => Promise.reject(new Error(error)));
 };
 
+export const post = (url, params) => {
+  const {includeCsrf, ...rest} = params;
+  if (includeCsrf) {
+    Object.assign(rest, {
+      "X-CSRF-Token": getCSRFToken()
+    })
+  }
+
+  return fetch(url, {...rest,
+    method: "POST"
+  });
+};
+
+export const getCSRFToken = () => {
+  return "CSRF";
+};
