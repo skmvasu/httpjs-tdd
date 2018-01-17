@@ -1,33 +1,29 @@
-var path = require('path');
+var path = require("path");
 
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
-    files: [
-      'tests.webpack.js',
-    ],
-    frameworks: [
-      'jasmine'
-    ],
-     preprocessors: {
-      './tests.webpack.js': ['webpack', 'sourcemap'],
+    files: ["tests.webpack.js"],
+    frameworks: ["jasmine"],
+    preprocessors: {
+      "./tests.webpack.js": ["webpack", "sourcemap"]
     },
 
     webpack: {
       cache: true,
-      devtool: 'inline-source-map',
+      devtool: "inline-source-map",
       module: {
         loaders: [
           {
             test: /\.js$/,
-            include: path.resolve(__dirname, '../src'),
+            include: path.resolve(__dirname, "../src"),
             exclude: /(bower_components|node_modules|__tests__)/,
-            loader: 'babel',
+            loader: "babel",
             query: {
-              cacheDirectory: true,
-            },
-          },
-        ],
-      },
-    },
+              cacheDirectory: true
+            }
+          }
+        ]
+      }
+    }
   });
 };
