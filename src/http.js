@@ -1,8 +1,10 @@
 import { stringify } from "query-string";
 
-const headers = {
-  "Content-Type": "application/json",
-  Accept: "application/json"
+export const HTTP_HEADER_TYPES = {
+  json: "application/json",
+  text: "application/text",
+  form: "application/x-www-form-urlencoded",
+  multipart: "multipart/form-data"
 };
 
 const status = response => {
@@ -14,8 +16,29 @@ const status = response => {
 };
 
 const deserializeResponse = response => response.json();
-const encodeRequests = (params) => {
+const encodeRequests = (params, contentType) => {
 
+  switch (contentType) {
+    case HTTP_HEADER_TYPES.form: {
+      return stringify(params);
+    }
+    case HTTP_HEADER_TYPES.multipart: {
+      var formData = new FormData();
+
+      for (var k in params) {
+        formData.append(k, params[k]);
+      }
+
+      return formData;
+    }
+    
+    case HTTP_HEADER_TYPES.form: {
+      return stringify(params);
+    }
+
+    default:
+      return params;
+  }
 }
 
 export const get = (url, params) => {
@@ -27,15 +50,20 @@ export const get = (url, params) => {
     .catch(error => Promise.reject(new Error(error)));
 };
 
-export const post = (url, params) => {
-  const {includeCsrf, ...rest} = params;
-  if (includeCsrf) {
-    Object.assign(rest, {
-      "X-CSRF-Token": getCSRFToken()
-    })
+export const post = (url, params, options) => {
+  const {includeCsrf, contentType} = options;
+
+  const headers = {
+    "Content-Type": contentType || HTTP_HEADER_TYPES.json
   }
 
-  return fetch(url, {...rest,
+  if (includeCsrf) {
+    headers["X-CSRF-Token"] = getCSRFToken();
+  }
+
+  return fetch(url, {
+    ...headers,
+    body: encodeRequests(params, contentType),
     method: "POST"
   });
 };
