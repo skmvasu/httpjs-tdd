@@ -7,12 +7,6 @@ export const HTTP_HEADER_TYPES = {
   multipart: "multipart/form-data"
 };
 
-const headers = {
-  "Content-Type": HTTP_HEADER_TYPES.json,
-  Accept: HTTP_HEADER_TYPES.json
-};
-
-
 const status = response => {
   if (response.ok) {
     return Promise.resolve(response);
