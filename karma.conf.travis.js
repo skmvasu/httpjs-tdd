@@ -15,10 +15,15 @@ module.exports = function(config) {
         loaders: [
           {
             test: /\.js$/,
-            include: path.resolve(__dirname, "../src"),
-            exclude: /(bower_components|node_modules|__tests__)/,
-            loader: "babel",
+            include: path.resolve(__dirname, "./src"),
+            exclude: /(bower_components|node_modules)/,
+            loader: "babel-loader",
             query: {
+              presets: ["es2015", "stage-2"],
+              plugins: [
+                "transform-object-rest-spread",
+                "transform-es2015-spread"
+              ],
               cacheDirectory: true
             }
           }
