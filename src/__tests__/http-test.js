@@ -48,78 +48,77 @@ describe("TestHttpService", () => {
       });
     });
 
-    describe("Test POST requests", () => {
-      let stubCSRF, csrf;
+    ['post', 'put', 'patch'].map(verb => {
 
-      beforeEach(() => {
-        csrf = "CSRF";
-        stub(http, "getCSRFToken").returns(csrf);
+      describe(`Test ${verb} requests`, () => {
+        let stubCSRF, csrf;
+  
+        beforeEach(() => {
+          csrf = "CSRF";
+          stub(http, "getCSRFToken").returns(csrf);
+        });
+  
+        afterEach(() => {
+          http.getCSRFToken.restore();
+        });
+  
+        it("should send request with custom headers", done => {
+          const postParams = { 
+            users: [1, 2] 
+          };
+          http[verb](url, postParams, { contentType: http.HTTP_HEADER_TYPES.text })
+            .then(response => {
+              const [uri, params] = [...stubedFetch.getCall(0).args];
+  
+              expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
+              expect(params.body).toEqual(jasmine.objectContaining(postParams));
+  
+              expect(params.headers.get("Content-Type")).toEqual(http.HTTP_HEADER_TYPES.text);
+              done();
+            });
+        });
+  
+        it("should send request with CSRF", done => {
+          const postParams = { 
+            users: [1, 2 ] 
+          };
+          http[verb](url, postParams, {
+              contentType: http.HTTP_HEADER_TYPES.text,
+              includeCsrf: true 
+            }).then(response => {
+              const [uri, params] = [...stubedFetch.getCall(0).args];
+  
+              expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
+              expect(params.body).toEqual(jasmine.objectContaining(postParams));
+              expect(params.headers.get("Content-Type")).toEqual(http.HTTP_HEADER_TYPES.text);
+              expect(params.headers.get("X-CSRF-Token")).toEqual(csrf);
+  
+              done();
+            });
+        });
+  
+        it("should send a form-encoded request", done => {
+          const users = [1, 2];
+          const limit = 50;
+          const isDetailed = false;
+          const postParams = { users, limit, isDetailed };
+  
+          http[verb](url, postParams, {
+              contentType: http.HTTP_HEADER_TYPES.form,
+              includeCsrf: true 
+            }).then(response => {
+              const [uri, params] = [...stubedFetch.getCall(0).args];
+  
+              expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
+              expect(params.body).toEqual("isDetailed=false&limit=50&users=1&users=2");
+              expect(params.headers.get("Content-Type")).toEqual(http.HTTP_HEADER_TYPES.form);
+              expect(params.headers.get("X-CSRF-Token")).toEqual(csrf);
+
+              done();
+            });
+        });
+  
       });
-
-      afterEach(() => {
-        http.getCSRFToken.restore();
-      });
-
-      it("should send a POST request with custom headers", done => {
-        const postParams = { 
-          users: [1, 2 ] 
-        };
-        http
-          .post(url, postParams, { contentType: http.HTTP_HEADER_TYPES.text })
-          .then(response => {
-            const [uri, params] = [...stubedFetch.getCall(0).args];
-
-            expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
-            expect(params.body).toEqual(jasmine.objectContaining(postParams));
-            expect(params).toEqual(jasmine.objectContaining({ "Content-Type": http.HTTP_HEADER_TYPES.text }));
-            done();
-          });
-      });
-
-      it("should send a POST request with CSRF", done => {
-        const postParams = { 
-          users: [1, 2 ] 
-        };
-        http
-          .post(url, postParams, {
-            contentType: http.HTTP_HEADER_TYPES.text,
-            includeCsrf: true 
-          }).then(response => {
-            const [uri, params] = [...stubedFetch.getCall(0).args];
-
-            expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
-            expect(params.body).toEqual(jasmine.objectContaining(postParams));
-            expect(params).toEqual(jasmine.objectContaining({
-                "Content-Type": http.HTTP_HEADER_TYPES.text,
-                "X-CSRF-Token": csrf
-              }));
-            done();
-          });
-      });
-
-      it("should send a form-encoded request", done => {
-        const users = [1, 2];
-        const limit = 50;
-        const isDetailed = false;
-        const postParams = { users, limit, isDetailed };
-
-        http
-          .post(url, postParams, {
-            contentType: http.HTTP_HEADER_TYPES.form,
-            includeCsrf: true 
-          }).then(response => {
-            const [uri, params] = [...stubedFetch.getCall(0).args];
-
-            expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
-            expect(params.body).toEqual("isDetailed=false&limit=50&users=1&users=2");
-            expect(params).toEqual(jasmine.objectContaining({
-                "Content-Type": http.HTTP_HEADER_TYPES.form,
-                "X-CSRF-Token": csrf
-              }));
-            done();
-          });
-      });
-
     });
   });
 });
