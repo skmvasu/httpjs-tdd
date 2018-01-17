@@ -32,10 +32,6 @@ const encodeRequests = (params, contentType) => {
       return formData;
     }
     
-    case HTTP_HEADER_TYPES.form: {
-      return stringify(params);
-    }
-
     default:
       return params;
   }
@@ -50,21 +46,26 @@ export const get = (url, params) => {
     .catch(error => Promise.reject(new Error(error)));
 };
 
-export const post = (url, params, options) => {
+export const post = (url, params, options = {}) => request(url, params, options, 'post');
+export const patch = (url, params, options = {}) => request(url, params, options, 'patch');
+export const put = (url, params, options = {}) => request(url, params, options, 'put');
+
+const request = (url, params, options={}, method="post") => {
   const {includeCsrf, contentType} = options;
 
-  const headers = {
-    "Content-Type": contentType || HTTP_HEADER_TYPES.json
-  }
+  const headers = new Headers();
+
+  headers.append("Content-Type", contentType || HTTP_HEADER_TYPES.json);
+
 
   if (includeCsrf) {
-    headers["X-CSRF-Token"] = getCSRFToken();
+    headers.append("X-CSRF-Token", getCSRFToken());
   }
 
   return fetch(url, {
-    ...headers,
-    body: encodeRequests(params, contentType),
-    method: "POST"
+    headers,
+    method,
+    body: encodeRequests(params, contentType)
   });
 };
 
