@@ -20,7 +20,7 @@ const config = {
   output: {
     // absolute path declaration
     path: path.resolve(__dirname, "dist"),
-    filename: "./build/js/[name].bundle.js"
+    filename: "./examples/public/[name].bundle.js"
   },
 
   module: {
@@ -39,7 +39,7 @@ const config = {
 
   plugins: [
     // cleaning up only 'dist' folder
-    new CleanWebpackPlugin(["build"]),
+    new CleanWebpackPlugin(["examples"]),
     // extract-text-webpack-plugin instance
     extractPlugin
   ],
