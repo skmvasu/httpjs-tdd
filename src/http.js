@@ -33,7 +33,7 @@ const encodeRequests = (params, contentType) => {
     }
     
     default:
-      return params;
+      return JSON.stringify(params);
   }
 }
 

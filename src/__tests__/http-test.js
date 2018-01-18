@@ -71,7 +71,7 @@ describe("TestHttpService", () => {
               const [uri, params] = [...stubedFetch.getCall(0).args];
   
               expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
-              expect(params.body).toEqual(jasmine.objectContaining(postParams));
+              expect(params.body).toEqual(JSON.stringify(postParams));
   
               expect(params.headers.get("Content-Type")).toEqual(http.HTTP_HEADER_TYPES.text);
               done();
@@ -89,7 +89,7 @@ describe("TestHttpService", () => {
               const [uri, params] = [...stubedFetch.getCall(0).args];
   
               expect(stubedFetch.calledWith(`${url}`)).toBeTruthy();
-              expect(params.body).toEqual(jasmine.objectContaining(postParams));
+              expect(params.body).toEqual(JSON.stringify(postParams));
               expect(params.headers.get("Content-Type")).toEqual(http.HTTP_HEADER_TYPES.text);
               expect(params.headers.get("X-CSRF-Token")).toEqual(csrf);
   
