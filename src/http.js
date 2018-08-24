@@ -66,7 +66,9 @@ const request = (url, params, options={}, method="post") => {
     headers,
     method,
     body: encodeRequests(params, contentType)
-  });
+  }).then(status)
+  .then(deserializeResponse)
+  .catch(error => Promise.reject(new Error(error)));
 };
 
 export const getCSRFToken = () => {
